@@ -1,10 +1,11 @@
-import { AdminDashboard } from "@/components/admin-dashboard"
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import AdminClient from "./AdminClient";
 
-export const metadata = {
-  title: "Admin Dashboard - ScholarHub",
-  description: "Manage scholarships and review student applications",
-}
+export default async function AdminPage() {
+  const session = await auth();
+  if (!session) redirect("/login");
+  if ((session.user as { role?: string }).role !== "admin") redirect("/dashboard");
 
-export default function AdminPage() {
-  return <AdminDashboard />
+  return <AdminClient />;
 }
