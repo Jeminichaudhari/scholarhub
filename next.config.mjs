@@ -7,10 +7,6 @@ const nextConfig = {
     unoptimized: true,
   },
   serverExternalPackages: ["mongoose", "bcryptjs"],
-  // Enable instrumentation.ts (background scheduler)
-  experimental: {
-    instrumentationHook: true,
-  },
 };
 
 export default nextConfig;
