@@ -6,17 +6,7 @@ import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
 import { createMailer, FROM } from "@/lib/mailer";
-import mongoose, { Schema } from "mongoose";
-
-// Reuse StudentNotif model
-const StudentNotif = mongoose.models.StudentNotif ||
-  mongoose.model("StudentNotif", new Schema({
-    studentEmail: { type: String, required: true },
-    title:        { type: String, required: true },
-    message:      { type: String, required: true },
-    type:         { type: String, default: "info" },
-    read:         { type: Boolean, default: false },
-  }, { timestamps: true }));
+import StudentNotif from "@/models/StudentNotif";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
