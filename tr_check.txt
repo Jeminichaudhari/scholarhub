@@ -1,0 +1,1 @@
+﻿const TR: Record<string, { nameHi: string; nameGu: string; eligibilityHi: string; eligibilityGu: string; tipsHi: string; tipsGu: string }> = {

@@ -1,4 +1,4 @@
-import { StudentDashboard } from "@/components/student-dashboard"
+import StudentDashboard from "@/components/student-dashboard"
 
 export const metadata = {
   title: "Student Dashboard - ScholarHub",

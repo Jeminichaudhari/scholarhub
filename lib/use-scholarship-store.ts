@@ -5,13 +5,30 @@ import { defaultScholarships, type Scholarship, type Application } from "./trans
 
 const SCHOLARSHIPS_KEY = "scholarhub_scholarships"
 const APPLICATIONS_KEY = "scholarhub_applications"
+const DATA_VERSION     = "v4" // bump this to force reset when data changes
+const VERSION_KEY      = "scholarhub_data_version"
 
 function getStoredScholarships(): Scholarship[] {
   if (typeof window === "undefined") return defaultScholarships
+
+  // Version check — if version mismatch, always reset to fresh data
+  const storedVersion = localStorage.getItem(VERSION_KEY)
+  if (storedVersion !== DATA_VERSION) {
+    localStorage.setItem(SCHOLARSHIPS_KEY, JSON.stringify(defaultScholarships))
+    localStorage.setItem(VERSION_KEY, DATA_VERSION)
+    return defaultScholarships
+  }
+
   const stored = localStorage.getItem(SCHOLARSHIPS_KEY)
   if (stored) {
     try {
-      return JSON.parse(stored)
+      const parsed: Scholarship[] = JSON.parse(stored)
+      const needsReset = parsed.length === 0 || !parsed[0].level
+      if (needsReset) {
+        localStorage.setItem(SCHOLARSHIPS_KEY, JSON.stringify(defaultScholarships))
+        return defaultScholarships
+      }
+      return parsed
     } catch {
       return defaultScholarships
     }
@@ -84,7 +101,7 @@ export function useScholarshipStore() {
   )
 
   const applyForScholarship = useCallback(
-    (scholarshipId: string, scholarshipTitle: string) => {
+    (scholarshipId: string, scholarshipTitle: string, studentName: string, studentEmail: string) => {
       const existing = applications.find((a) => a.scholarshipId === scholarshipId)
       if (existing) return false
 
@@ -92,7 +109,8 @@ export function useScholarshipStore() {
         id: Date.now().toString(),
         scholarshipId,
         scholarshipTitle,
-        studentName: "Student",
+        studentName: studentName || "Student",
+        studentEmail: studentEmail || "",
         appliedDate: new Date().toISOString().split("T")[0],
         status: "pending",
       }

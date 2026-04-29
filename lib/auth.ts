@@ -1,8 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcryptjs";
 import connectDB from "./mongodb";
 import User from "@/models/User";
+import Otp from "@/models/Otp";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   trustHost: true,
@@ -11,30 +11,36 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        otp:   { label: "OTP",   type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.otp) return null;
 
         try {
           await connectDB();
+
+          // Password was already verified in /api/auth/send-otp
+          // Here we only verify the OTP
+          const record = await Otp.findOne({ email: credentials.email });
+
+          if (!record) return null;
+          if (record.expiresAt < new Date()) {
+            await Otp.deleteOne({ email: credentials.email });
+            return null;
+          }
+          if (record.otp !== credentials.otp) return null;
+
+          // OTP correct — consume it
+          await Otp.deleteOne({ email: credentials.email });
+
           const user = await User.findOne({ email: credentials.email });
-
           if (!user) return null;
-          if (!user.password) return null;
-
-          const isValid = await bcrypt.compare(
-            credentials.password as string,
-            user.password
-          );
-
-          if (!isValid) return null;
 
           return {
-            id: user._id.toString(),
-            name: user.name,
+            id:    user._id.toString(),
+            name:  user.name,
             email: user.email,
-            role: user.role,
+            role:  user.role,
             image: user.image,
           };
         } catch (error) {
@@ -47,30 +53,20 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        try {
-          await connectDB();
-          const dbUser = await User.findOne({ email: token.email });
-          if (dbUser) {
-            token.id = dbUser._id.toString();
-            token.role = dbUser.role;
-          }
-        } catch (error) {
-          console.error("JWT error:", error);
-        }
+        token.id   = user.id;
+        token.role = (user as any).role;
       }
       return token;
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id as string;
+        session.user.id   = token.id as string;
         session.user.role = token.role as string;
       }
       return session;
     },
   },
-  pages: {
-    signIn: "/login",
-  },
+  pages: { signIn: "/login" },
   session: { strategy: "jwt" },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
 });

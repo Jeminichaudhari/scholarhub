@@ -245,9 +245,18 @@ export default function ScholarshipPage(){
   const { data: session } = useSession();
   const[lang,setLang]=useState<Lang>("en");
   const t=T[lang];
+  const[langOpen,setLangOpen]=useState(false);
+  const langRef=useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    function handler(e:MouseEvent){ if(langRef.current&&!langRef.current.contains(e.target as Node)) setLangOpen(false); }
+    document.addEventListener("mousedown",handler);
+    return ()=>document.removeEventListener("mousedown",handler);
+  },[]);
   const[activeNav,setActiveNav]=useState<"home"|"scholarships"|"contact"|"help">("home");
   const[profile,setProfile]=useState<Profile>({income:"",category:"SC",course:"Any",state:"Any",gender:"Any"});
   const[savedProfile,setSavedProfile]=useState<Profile|null>(null);
+  const[showResults,setShowResults]=useState(false);
   const[showProfile,setShowProfile]=useState(false);
   const[searchName,setSearchName]=useState("");
   const[searchCategory,setSearchCategory]=useState("All Categories");
@@ -315,78 +324,112 @@ export default function ScholarshipPage(){
   return(
     <div className="min-h-screen bg-slate-50" style={{fontFamily:"'Segoe UI',system-ui,sans-serif"}}>
 
-      {/* ══ NAVBAR ══ */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200" style={{boxShadow:"0 1px 3px rgba(0,0,0,0.08)"}}>
+      {/* ══ NAVBAR — Admin style dark navy ══ */}
+      <header className="sticky top-0 z-40 w-full" style={{background:"linear-gradient(135deg,#0f2044 0%,#1a3360 100%)"}}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="flex items-center h-16 gap-3">
+
+            {/* Logo */}
             <div className="flex items-center gap-2.5 flex-shrink-0">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-lg flex-shrink-0" style={{background:`linear-gradient(135deg,${C.blue},${C.indigo})`}}>🎓</div>
-              <div className="hidden sm:block">
-                <p className="font-bold text-slate-900 leading-none text-base">ScholarHub</p>
-                <p className="text-[10px] text-slate-400 leading-none mt-0.5 font-medium tracking-wide uppercase">{t.tagline}</p>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{background:"rgba(255,255,255,0.12)"}}>
+                <span className="text-lg">🎓</span>
               </div>
-              <p className="sm:hidden font-bold text-slate-900 text-base">ScholarHub</p>
+              <div className="hidden sm:block">
+                <p className="font-bold text-white leading-none text-sm">ScholarHub</p>
+                <p className="text-blue-300 text-[10px] leading-none mt-0.5 font-medium tracking-wide uppercase">{t.tagline}</p>
+              </div>
+              <p className="sm:hidden font-bold text-white text-sm">ScholarHub</p>
             </div>
 
-            <nav className="hidden md:flex items-center gap-0.5 ml-2">
+            {/* Nav links */}
+            <nav className="hidden md:flex items-center gap-1 ml-2">
               {(["home","scholarships","contact","help"] as const).map(k=>{
                 const labels:{[key:string]:string}={home:t.navHome,scholarships:t.navScholarships,contact:t.navContact,help:"Help"};
                 const active=activeNav===k;
                 return(
                   <button key={k} onClick={()=>setActiveNav(k)}
-                    className={`px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${active?"bg-blue-600 text-white shadow-sm":"text-slate-600 hover:text-slate-900 hover:bg-slate-100"}`}>
+                    className={`px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${active?"text-white shadow-sm":"text-blue-200 hover:text-white hover:bg-white/10"}`}
+                    style={active?{background:"rgba(255,255,255,0.18)"}:{}}>
                     {labels[k]}
                   </button>
                 );
               })}
             </nav>
 
-            <div className="flex-1 mx-2 hidden lg:flex items-center gap-2 bg-slate-100 rounded-xl px-3.5 py-2.5 border border-slate-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input value={searchName} onChange={e=>setSearchName(e.target.value)} placeholder={t.searchPlaceholder} className="bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400 w-full"/>
-              {searchName&&<button onClick={()=>setSearchName("")} className="text-slate-400 hover:text-slate-600 text-xs">✕</button>}
+            {/* Search */}
+            <div className="flex-1 mx-2 hidden lg:flex items-center gap-2 rounded-xl px-3.5 py-2 transition-all"
+              style={{background:"rgba(255,255,255,0.10)",border:"1px solid rgba(255,255,255,0.15)"}}>
+              <svg className="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input value={searchName} onChange={e=>setSearchName(e.target.value)} placeholder={t.searchPlaceholder}
+                className="bg-transparent outline-none text-sm text-white placeholder-blue-300 w-full"/>
+              {searchName&&<button onClick={()=>setSearchName("")} className="text-blue-300 hover:text-white text-xs">✕</button>}
             </div>
 
+            {/* Right side */}
             <div className="flex items-center gap-2 ml-auto">
-              <div className="flex rounded-lg overflow-hidden border border-slate-200 text-xs font-semibold flex-shrink-0">
-                {(["en","hi","gu"] as Lang[]).map(l=>(
-                  <button key={l} onClick={()=>setLang(l)} className={`px-2.5 py-1.5 transition-colors ${lang===l?"bg-blue-600 text-white":"bg-white text-slate-500 hover:bg-slate-50"}`}>
-                    {l==="en"?"EN":l==="hi"?"हिं":"ગુ"}
-                  </button>
-                ))}
+
+              {/* Language dropdown */}
+              <div className="relative flex-shrink-0" ref={langRef}>
+                <button onClick={()=>setLangOpen(!langOpen)}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold text-white transition hover:opacity-80"
+                  style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.18)"}}>
+                  <svg className="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+                  <span>{lang==="en"?"English":lang==="hi"?"हिन्दी":"ગુજરાતી"}</span>
+                  <svg className={`w-3.5 h-3.5 text-blue-300 transition-transform ${langOpen?"rotate-180":""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
+                </button>
+                {langOpen && (
+                  <div className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 rounded-2xl shadow-xl z-50 overflow-hidden py-1">
+                    {([["en","English","English"],["hi","हिन्दी","Hindi"],["gu","ગુજરાતી","Gujarati"]] as [Lang,string,string][]).map(([code,native,label])=>(
+                      <button key={code} onClick={()=>{setLang(code);setLangOpen(false);localStorage.setItem("sh_lang",code);}}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm transition-colors hover:bg-gray-50 ${lang===code?"text-blue-600 font-semibold bg-blue-50/60":"text-gray-700"}`}>
+                        <div className="text-left flex-1">
+                          <p className="font-semibold leading-none">{native}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">{label}</p>
+                        </div>
+                        {lang===code && <span className="text-blue-500 text-xs font-bold">✓</span>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Session buttons */}
               {session ? (
-                <div className="flex items-center gap-2">
-                  <span className="hidden sm:inline text-sm font-medium text-slate-700">
-                    👋 {session.user?.name?.split(" ")[0]}
-                  </span>
-                  <button
-                    onClick={()=>signOut({callbackUrl:"/login"})}
-                    className="text-sm font-medium text-red-500 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-all">
-                    {t.logout}
+                <>
+                  <button onClick={()=>setShowProfile(true)}
+                    className="hidden sm:inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-white transition hover:opacity-80"
+                    style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.18)"}}>
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                      style={{background:"linear-gradient(135deg,#1e6fff,#2563eb)"}}>
+                      {session.user?.name?.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="hidden sm:inline">{session.user?.name?.split(" ")[0]}</span>
                   </button>
-                </div>
+                  <button onClick={()=>signOut({callbackUrl:"/login"})}
+                    className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-white transition hover:opacity-80"
+                    style={{background:"rgba(239,68,68,0.25)",border:"1px solid rgba(239,68,68,0.4)"}}>
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span className="hidden sm:inline">{t.logout}</span>
+                  </button>
+                </>
               ) : (
                 <Link href="/login"
-                  className="flex items-center gap-1.5 text-sm font-medium text-white px-4 py-1.5 rounded-lg transition-all hover:opacity-90 flex-shrink-0"
-                  style={{background:`linear-gradient(135deg,${C.blue},${C.indigo})`}}>
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-white px-4 py-2 rounded-xl transition hover:opacity-90 flex-shrink-0"
+                  style={{background:"linear-gradient(135deg,#1e6fff,#2563eb)"}}>
                   Login
                 </Link>
               )}
-
-              <button onClick={()=>setShowProfile(true)}
-                className="flex items-center gap-1.5 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:border-blue-300 hover:text-blue-700 flex-shrink-0">
-                <span className="text-base leading-none">👤</span>
-                <span className="hidden sm:inline">{t.profile}</span>
-              </button>
             </div>
           </div>
 
+          {/* Mobile search */}
           <div className="lg:hidden pb-3">
-            <div className="flex items-center gap-2 bg-slate-100 rounded-xl px-3.5 py-2.5 border border-slate-200 focus-within:bg-white focus-within:border-blue-400 transition-all">
-              <svg className="w-4 h-4 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-              <input value={searchName} onChange={e=>setSearchName(e.target.value)} placeholder={t.searchPlaceholder} className="bg-transparent outline-none text-sm text-slate-700 placeholder-slate-400 w-full"/>
+            <div className="flex items-center gap-2 rounded-xl px-3.5 py-2.5 transition-all"
+              style={{background:"rgba(255,255,255,0.10)",border:"1px solid rgba(255,255,255,0.15)"}}>
+              <svg className="w-4 h-4 text-blue-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+              <input value={searchName} onChange={e=>setSearchName(e.target.value)} placeholder={t.searchPlaceholder}
+                className="bg-transparent outline-none text-sm text-white placeholder-blue-300 w-full"/>
             </div>
           </div>
         </div>
@@ -500,7 +543,7 @@ export default function ScholarshipPage(){
                   <div key={lbl}><label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">{lbl}</label>{el}</div>
                 ))}
                 <div className="flex flex-col gap-2 items-stretch">
-                  <button onClick={()=>setSavedProfile({...profile})}
+                  <button onClick={()=>{setSavedProfile({...profile});setShowResults(true);}}
                     className="w-full py-2 px-4 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
                     style={{background:`linear-gradient(135deg,${C.blue},${C.indigo})`,boxShadow:"0 2px 8px rgba(29,78,216,0.3)"}}>
                     {t.updateProfile}
@@ -549,18 +592,34 @@ export default function ScholarshipPage(){
             </div>
             <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
               <span className="text-xs text-slate-400 font-medium">{displayed.length} {t.showing}</span>
-              {hasFilters&&(
-                <button onClick={clearFilters}
+              <div className="flex items-center gap-2">
+                {hasFilters&&(
+                  <button onClick={()=>{clearFilters();setShowResults(false);}}
+                    className="py-2 px-4 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
+                    style={{background:"linear-gradient(135deg,#dc2626,#b91c1c)"}}>
+                    Clear All ✕
+                  </button>
+                )}
+                <button onClick={()=>setShowResults(true)}
                   className="py-2 px-5 rounded-lg text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95"
                   style={{background:`linear-gradient(135deg,${C.blue},${C.indigo})`,boxShadow:"0 2px 8px rgba(29,78,216,0.25)"}}>
-                  Clear all ✕
+                  🔍 Apply Filter
                 </button>
-              )}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Table */}
+        {/* Table — only shown after clicking Find My Scholarships */}
+        {!showResults ? (
+          <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
+            <div className="rounded-2xl border border-slate-200 bg-white p-12 text-center" style={{boxShadow:"0 2px 16px rgba(0,0,0,0.07)"}}>
+              <div className="text-5xl mb-4">🎓</div>
+              <h3 className="text-lg font-bold text-slate-700 mb-2">Fill your profile to find scholarships</h3>
+              <p className="text-sm text-slate-400">Enter your income, category, course and state above, then click <b>"{t.updateProfile}"</b> to see matching scholarships.</p>
+            </div>
+          </section>
+        ) : (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-16">
           <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden" style={{boxShadow:"0 2px 16px rgba(0,0,0,0.07)"}}>
             <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-3" style={{background:`linear-gradient(to right,${C.navy},${C.navyMid})`}}>
@@ -621,6 +680,7 @@ export default function ScholarshipPage(){
             </div>
           </div>
         </section>
+        )}
       </>)}
 
       {/* ══ DETAILS MODAL ══ */}

@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
+import { LanguageProvider } from "@/lib/language-context";
+import { ThemeProvider } from "@/components/theme-provider";
+import ReminderHeartbeat from "@/components/reminder-heartbeat";
 
 export const metadata: Metadata = {
   title: "Scholarship Portal",
@@ -9,9 +12,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body>
-        <SessionProvider>{children}</SessionProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="scholarhub-theme">
+          <SessionProvider>
+            <LanguageProvider>
+              <ReminderHeartbeat />
+              {children}
+            </LanguageProvider>
+          </SessionProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
