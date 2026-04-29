@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { AuthProvider } from "@/components/providers";
 import { LanguageProvider } from "@/lib/language-context";
 import { ThemeProvider } from "@/components/theme-provider";
 import ReminderHeartbeat from "@/components/reminder-heartbeat";
@@ -18,12 +18,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="scholarhub-theme">
-          <SessionProvider>
+          <AuthProvider>
             <LanguageProvider>
               <ReminderHeartbeat />
               {children}
             </LanguageProvider>
-          </SessionProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
