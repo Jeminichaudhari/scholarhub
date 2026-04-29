@@ -1,7 +1,8 @@
-import NextAuth, { NextAuthOptions, getServerSession } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions: NextAuthOptions = {
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -62,10 +63,5 @@ export const authOptions: NextAuthOptions = {
   },
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },
-  secret: process.env.NEXTAUTH_SECRET,
-};
-
-export default NextAuth(authOptions);
-
-// Helper for API routes
-export const auth = () => getServerSession(authOptions);
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
+});

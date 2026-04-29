@@ -3,13 +3,9 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  serverExternalPackages: [
-    "mongoose",
-    "bcryptjs",
-    "nodemailer",
-    "@auth/core",
-    "next-auth",
-  ],
+  experimental: {
+    serverComponentsExternalPackages: ["mongoose", "nodemailer", "bcryptjs"],
+  },
   images: {
     unoptimized: true,
   },
