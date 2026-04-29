@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
@@ -59,5 +62,5 @@ export async function PATCH(req: NextRequest) {
     $push: { applicants: user._id },
   });
 
-  return NextResponse.json({ message: "Apply ho gaya! 🎉" });
+  return NextResponse.json({ message: "Apply ho gaya! ðŸŽ‰" });
 }

@@ -1,9 +1,12 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
 import Reminder from "@/models/Reminder";
 
-// POST — set/update a reminder
+// POST â€” set/update a reminder
 export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email)
@@ -21,7 +24,7 @@ export async function POST(req: NextRequest) {
 
   await connectDB();
 
-  // Build reminderDates array — prefer new format, fall back to legacy
+  // Build reminderDates array â€” prefer new format, fall back to legacy
   let rdates: { date: string; hour: number; minute: number; sent: boolean }[] = [];
 
   if (Array.isArray(reminderDates) && reminderDates.length > 0) {
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ message: "Reminder set!", count: rdates.length });
 }
 
-// DELETE — remove a reminder
+// DELETE â€” remove a reminder
 export async function DELETE(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email)
@@ -81,7 +84,7 @@ export async function DELETE(req: NextRequest) {
   return NextResponse.json({ message: "Reminder removed" });
 }
 
-// GET — get all reminders for current student
+// GET â€” get all reminders for current student
 export async function GET() {
   const session = await auth();
   if (!session?.user?.email)
@@ -91,3 +94,4 @@ export async function GET() {
   const reminders = await Reminder.find({ studentEmail: session.user.email });
   return NextResponse.json({ reminders });
 }
+

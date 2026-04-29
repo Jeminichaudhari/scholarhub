@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
@@ -54,9 +57,9 @@ export async function POST(req: NextRequest) {
         `,
       });
     } catch (emailErr: any) {
-      console.error("❌ Email send failed:", emailErr?.message);
-      console.error("❌ Full error:", JSON.stringify(emailErr, null, 2));
-      console.log(`\n🔑 DEV MODE — OTP for ${email}: ${otp}\n`);
+      console.error("âŒ Email send failed:", emailErr?.message);
+      console.error("âŒ Full error:", JSON.stringify(emailErr, null, 2));
+      console.log(`\nðŸ”‘ DEV MODE â€” OTP for ${email}: ${otp}\n`);
       // Return error to client so user knows email failed
       return NextResponse.json({
         message: `OTP generated but email failed: ${emailErr?.message}. Check terminal for OTP.`,
@@ -74,3 +77,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: err?.message || "Server error" }, { status: 500 });
   }
 }
+

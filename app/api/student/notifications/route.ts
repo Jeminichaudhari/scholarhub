@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
@@ -27,7 +30,7 @@ const StudentNotifSchema = new Schema<IStudentNotif>(
 const StudentNotif = mongoose.models.StudentNotif ||
   mongoose.model<IStudentNotif>("StudentNotif", StudentNotifSchema);
 
-// GET — fetch notifications for logged-in student
+// GET â€” fetch notifications for logged-in student
 export async function GET() {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ notifications: [] });
@@ -41,7 +44,7 @@ export async function GET() {
   return NextResponse.json({ notifications });
 }
 
-// PATCH — mark one or all as read
+// PATCH â€” mark one or all as read
 export async function PATCH(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ ok: false }, { status: 401 });
@@ -57,7 +60,7 @@ export async function PATCH(req: NextRequest) {
   return NextResponse.json({ ok: true });
 }
 
-// DELETE — delete a notification
+// DELETE â€” delete a notification
 export async function DELETE(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.email) return NextResponse.json({ ok: false }, { status: 401 });
@@ -67,3 +70,4 @@ export async function DELETE(req: NextRequest) {
   await StudentNotif.findOneAndDelete({ _id: id, studentEmail: session.user.email });
   return NextResponse.json({ ok: true });
 }
+

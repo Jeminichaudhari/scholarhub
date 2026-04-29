@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Otp from "@/models/Otp";
@@ -24,7 +27,7 @@ export async function POST(req: NextRequest) {
   if (record.otp !== otp)
     return NextResponse.json({ message: "Invalid OTP. Please try again." }, { status: 400 });
 
-  // OTP is correct — delete it so it can't be reused
+  // OTP is correct â€” delete it so it can't be reused
   await Otp.deleteOne({ email });
 
   // Find or create user
@@ -38,3 +41,4 @@ export async function POST(req: NextRequest) {
     user: { id: user._id.toString(), email: user.email, role: user.role },
   });
 }
+

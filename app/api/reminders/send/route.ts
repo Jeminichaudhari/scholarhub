@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { createMailer, FROM } from "@/lib/mailer";
 import connectDB from "@/lib/mongodb";
@@ -8,9 +11,9 @@ export async function GET(req: NextRequest) {
   if (secret !== process.env.CRON_SECRET)
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-  // force=true — skip time check (send even if time hasn't arrived yet)
+  // force=true â€” skip time check (send even if time hasn't arrived yet)
   const force = req.nextUrl.searchParams.get("force") === "true";
-  // reset=true — mark all as unsent so they can fire again (for testing)
+  // reset=true â€” mark all as unsent so they can fire again (for testing)
   const reset = req.nextUrl.searchParams.get("reset") === "true";
 
   try {
@@ -53,7 +56,7 @@ export async function GET(req: NextRequest) {
       const msPerDay = 24 * 60 * 60 * 1000;
       const daysLeft = Math.ceil((r.deadline.getTime() - now.getTime()) / msPerDay);
 
-      // ── New format: reminderDates array ──────────────────────────────────
+      // â”€â”€ New format: reminderDates array â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
       if (Array.isArray(r.reminderDates) && r.reminderDates.length > 0) {
         for (let i = 0; i < r.reminderDates.length; i++) {
           const rd = r.reminderDates[i];
@@ -68,8 +71,8 @@ export async function GET(req: NextRequest) {
             from: FROM(),
             to:   r.studentEmail,
             subject: daysLeft <= 1
-              ? `⏰ Last Day Tomorrow — ${r.scholarshipTitle}`
-              : `📅 ${daysLeft} Days Left — ${r.scholarshipTitle}`,
+              ? `â° Last Day Tomorrow â€” ${r.scholarshipTitle}`
+              : `ðŸ“… ${daysLeft} Days Left â€” ${r.scholarshipTitle}`,
             html: reminderEmail({
               name:     r.studentName,
               title:    r.scholarshipTitle,
@@ -87,10 +90,10 @@ export async function GET(req: NextRequest) {
             { $set: { [`reminderDates.${i}.sent`]: true } }
           );
 
-          sentLog.push(`✅ ${r.studentEmail} — ${r.scholarshipTitle} on ${rd.date} at ${rd.hour}:${String(rd.minute).padStart(2,"0")}`);
+          sentLog.push(`âœ… ${r.studentEmail} â€” ${r.scholarshipTitle} on ${rd.date} at ${rd.hour}:${String(rd.minute).padStart(2,"0")}`);
         }
       } else {
-        // ── Legacy format: reminderDays ──────────────────────────────────
+        // â”€â”€ Legacy format: reminderDays â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         const reminderDays = Array.isArray(r.reminderDays) && r.reminderDays.length > 0
           ? r.reminderDays : [5, 1];
 
@@ -108,8 +111,8 @@ export async function GET(req: NextRequest) {
             from: FROM(),
             to:   r.studentEmail,
             subject: daysLeft <= 1
-              ? `⏰ Last Day Tomorrow — ${r.scholarshipTitle}`
-              : `📅 ${daysLeft} Days Left — ${r.scholarshipTitle}`,
+              ? `â° Last Day Tomorrow â€” ${r.scholarshipTitle}`
+              : `ðŸ“… ${daysLeft} Days Left â€” ${r.scholarshipTitle}`,
             html: reminderEmail({
               name:     r.studentName,
               title:    r.scholarshipTitle,
@@ -122,11 +125,11 @@ export async function GET(req: NextRequest) {
           });
 
           await Reminder.updateOne({ _id: r._id }, { $addToSet: { sentDays: day } });
-          sentLog.push(`✅ ${r.studentEmail} — ${r.scholarshipTitle} (${day}d before)`);
+          sentLog.push(`âœ… ${r.studentEmail} â€” ${r.scholarshipTitle} (${day}d before)`);
         }
       }
     } catch (err: any) {
-      errors.push(`❌ ${r.studentEmail}: ${err?.message}`);
+      errors.push(`âŒ ${r.studentEmail}: ${err?.message}`);
     }
   }
 
@@ -168,13 +171,13 @@ function reminderEmail({ name, title, deadline, link, daysLeft, hour = 9, minute
   const h12     = hour % 12 || 12;
   const timeStr = `${h12}:${String(minute).padStart(2,"0")} ${ampm}`;
   const urgency = daysLeft <= 1
-    ? "⏰ <b>Last chance!</b> Deadline is <b>tomorrow</b>."
-    : `📅 Only <b>${daysLeft} days left</b> to apply.`;
+    ? "â° <b>Last chance!</b> Deadline is <b>tomorrow</b>."
+    : `ðŸ“… Only <b>${daysLeft} days left</b> to apply.`;
 
   return `
     <div style="font-family:sans-serif;max-width:480px;margin:auto;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
       <div style="background:linear-gradient(135deg,#1a2744,#1e3a6e);padding:28px 24px">
-        <p style="color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px">ScholarHub · Deadline Reminder</p>
+        <p style="color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px">ScholarHub Â· Deadline Reminder</p>
         <h1 style="color:#fff;font-size:20px;font-weight:800;margin:0">${title}</h1>
       </div>
       <div style="padding:24px;background:#fff">
@@ -185,10 +188,11 @@ function reminderEmail({ name, title, deadline, link, daysLeft, hour = 9, minute
           <p style="color:#78350f;font-size:20px;font-weight:800;margin:6px 0 0">${deadlineStr}</p>
         </div>
         <p style="color:#6b7280;font-size:14px;margin:0 0 8px">Don't miss this opportunity. Apply before the deadline.</p>
-        <p style="color:#9ca3af;font-size:12px;margin:0 0 20px">⏰ Reminder scheduled for <b style="color:#374151">${timeStr}</b></p>
-        ${link ? `<a href="${link}" style="display:block;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none">Apply Now on Official Site →</a>` : ""}
+        <p style="color:#9ca3af;font-size:12px;margin:0 0 20px">â° Reminder scheduled for <b style="color:#374151">${timeStr}</b></p>
+        ${link ? `<a href="${link}" style="display:block;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none">Apply Now on Official Site â†’</a>` : ""}
         <p style="color:#9ca3af;font-size:12px;margin:16px 0 0;text-align:center">You set this reminder on ScholarHub.</p>
       </div>
     </div>
   `;
 }
+

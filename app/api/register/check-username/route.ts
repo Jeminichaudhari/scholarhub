@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
@@ -16,3 +19,4 @@ export async function GET(req: NextRequest) {
   const exists = await User.findOne({ username });
   return NextResponse.json({ available: !exists });
 }
+

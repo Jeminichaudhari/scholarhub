@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
@@ -11,7 +14,7 @@ export async function GET() {
   await connectDB();
   const allUsers = await User.find({ role: "student" }, { name: 1, email: 1, createdAt: 1 }).sort({ createdAt: -1 });
 
-  // Remove duplicates by email — keep the most recent registration
+  // Remove duplicates by email â€” keep the most recent registration
   const seen = new Set<string>();
   const users = allUsers.filter(u => {
     if (seen.has(u.email)) return false;
@@ -21,3 +24,4 @@ export async function GET() {
 
   return NextResponse.json({ users });
 }
+

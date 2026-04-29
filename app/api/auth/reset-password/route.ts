@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { createMailer, FROM } from "@/lib/mailer";
 import nodemailer from "nodemailer";
@@ -10,17 +13,17 @@ function generateOTP() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ── POST /api/auth/reset-password
-// action: "send-otp"   → verify admin email exists, send OTP
-// action: "verify-otp" → verify OTP, return token to allow reset
-// action: "reset"      → verify OTP token + save new password
+// â”€â”€ POST /api/auth/reset-password
+// action: "send-otp"   â†’ verify admin email exists, send OTP
+// action: "verify-otp" â†’ verify OTP, return token to allow reset
+// action: "reset"      â†’ verify OTP token + save new password
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { action } = body;
 
   await connectDB();
 
-  // ── 1. Send reset OTP ───────────────────────────────────────────────────────
+  // â”€â”€ 1. Send reset OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (action === "send-otp") {
     const { email } = body;
     if (!email) return NextResponse.json({ message: "Email is required" }, { status: 400 });
@@ -60,7 +63,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: "OTP sent", maskedEmail });
   }
 
-  // ── 2. Verify OTP ───────────────────────────────────────────────────────────
+  // â”€â”€ 2. Verify OTP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (action === "verify-otp") {
     const { email, otp } = body;
     if (!email || !otp) return NextResponse.json({ message: "Email and OTP required" }, { status: 400 });
@@ -73,11 +76,11 @@ export async function POST(req: NextRequest) {
     }
     if (record.otp !== otp) return NextResponse.json({ message: "Invalid OTP." }, { status: 400 });
 
-    // Don't delete OTP yet — keep it as a "verified" token for the reset step
+    // Don't delete OTP yet â€” keep it as a "verified" token for the reset step
     return NextResponse.json({ message: "OTP verified", verified: true });
   }
 
-  // ── 3. Reset password ───────────────────────────────────────────────────────
+  // â”€â”€ 3. Reset password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   if (action === "reset") {
     const { email, otp, newPassword } = body;
     if (!email || !otp || !newPassword)
@@ -100,3 +103,4 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({ message: "Invalid action" }, { status: 400 });
 }
+

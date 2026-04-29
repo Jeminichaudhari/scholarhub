@@ -1,3 +1,6 @@
+﻿export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import connectDB from "@/lib/mongodb";
@@ -42,8 +45,8 @@ export async function POST(req: NextRequest) {
     const isUpdate  = title.startsWith("[Updated]");
     const cleanTitle = isUpdate ? title.replace("[Updated] ", "") : title;
     const subject    = isUpdate
-      ? `✏️ Scholarship Updated — ${cleanTitle}`
-      : `🎓 New Scholarship Added — ${cleanTitle}`;
+      ? `âœï¸ Scholarship Updated â€” ${cleanTitle}`
+      : `ðŸŽ“ New Scholarship Added â€” ${cleanTitle}`;
 
     let sent = 0;
     const errors: string[] = [];
@@ -97,7 +100,7 @@ function notificationEmail({ studentName, title, isUpdate, description, eligibil
   description: string; eligibility: string; amount: string;
   deadline: string; category: string; applyLink: string;
 }) {
-  const badge = isUpdate ? "✏️ Scholarship Updated" : "🎓 New Scholarship Added";
+  const badge = isUpdate ? "âœï¸ Scholarship Updated" : "ðŸŽ“ New Scholarship Added";
   const intro = isUpdate
     ? `A scholarship has been <b>updated</b> on ScholarHub. Check the latest details below.`
     : `A <b>new scholarship</b> has been added on ScholarHub!`;
@@ -105,7 +108,7 @@ function notificationEmail({ studentName, title, isUpdate, description, eligibil
   return `
     <div style="font-family:sans-serif;max-width:520px;margin:auto;border-radius:16px;overflow:hidden;border:1px solid #e2e8f0">
       <div style="background:linear-gradient(135deg,#1a2744,#1e3a6e);padding:28px 24px">
-        <p style="color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px">ScholarHub · ${badge}</p>
+        <p style="color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px">ScholarHub Â· ${badge}</p>
         <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 6px">${title}</h1>
         <span style="background:rgba(255,255,255,0.15);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px">${category}</span>
       </div>
@@ -122,7 +125,7 @@ function notificationEmail({ studentName, title, isUpdate, description, eligibil
           ${amount ? `
           <div style="flex:1;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px">
             <p style="color:#166534;font-size:10px;font-weight:700;text-transform:uppercase;margin:0 0 2px">Amount</p>
-            <p style="color:#14532d;font-size:16px;font-weight:800;margin:0">₹${amount}</p>
+            <p style="color:#14532d;font-size:16px;font-weight:800;margin:0">â‚¹${amount}</p>
           </div>` : ""}
           <div style="flex:1;background:#fef3c7;border:1px solid #fcd34d;border-radius:10px;padding:12px">
             <p style="color:#92400e;font-size:10px;font-weight:700;text-transform:uppercase;margin:0 0 2px">Deadline</p>
@@ -138,7 +141,7 @@ function notificationEmail({ studentName, title, isUpdate, description, eligibil
 
         ${applyLink ? `
         <a href="${applyLink}" style="display:block;background:linear-gradient(135deg,#1e6fff,#2563eb);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none;margin-bottom:12px">
-          Apply Now on Official Site →
+          Apply Now on Official Site â†’
         </a>` : ""}
 
         <p style="color:#9ca3af;font-size:12px;margin:12px 0 0;text-align:center">
@@ -148,3 +151,4 @@ function notificationEmail({ studentName, title, isUpdate, description, eligibil
     </div>
   `;
 }
+
