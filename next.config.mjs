@@ -15,7 +15,6 @@ const nextConfig = {
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
-      // Don't bundle Node.js-only modules on the client
       config.resolve.fallback = {
         ...config.resolve.fallback,
         stream: false,
@@ -25,7 +24,30 @@ const nextConfig = {
         tls: false,
         dns: false,
         child_process: false,
+        path: false,
+        os: false,
+        http: false,
+        https: false,
+        zlib: false,
+        util: false,
+        url: false,
+        assert: false,
+        buffer: false,
+        events: false,
+        querystring: false,
+        string_decoder: false,
       };
+    }
+    // Exclude nodemailer and mongoose from webpack bundling entirely
+    config.externals = config.externals || [];
+    if (isServer) {
+      config.externals.push(
+        "nodemailer",
+        "mongoose",
+        "bcryptjs",
+        "@auth/core",
+        "next-auth"
+      );
     }
     return config;
   },
