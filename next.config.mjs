@@ -14,6 +14,12 @@ const nextConfig = {
     unoptimized: true,
   },
   webpack: (config, { isServer }) => {
+    // Deduplicate React — prevents "multiple copies of React" error
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: require.resolve("react"),
+      "react-dom": require.resolve("react-dom"),
+    };
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
