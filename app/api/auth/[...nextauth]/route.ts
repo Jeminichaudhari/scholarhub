@@ -1,5 +1,14 @@
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-import handler from "@/lib/auth";
-export { handler as GET, handler as POST };
+import type { NextRequest } from "next/server";
+
+export async function GET(req: NextRequest, ctx: any) {
+  const { handlers } = await import("@/lib/auth");
+  return handlers.GET(req, ctx);
+}
+
+export async function POST(req: NextRequest, ctx: any) {
+  const { handlers } = await import("@/lib/auth");
+  return handlers.POST(req, ctx);
+}

@@ -1,7 +1,8 @@
-import NextAuth, { type NextAuthOptions } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions: NextAuthOptions = {
+export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -12,9 +13,9 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.otp) return null;
         try {
-          const connectDB          = (await import("./mongodb")).default;
-          const { default: Otp }   = await import("@/models/Otp");
-          const { default: User }  = await import("@/models/User");
+          const connectDB         = (await import("./mongodb")).default;
+          const { default: Otp }  = await import("@/models/Otp");
+          const { default: User } = await import("@/models/User");
 
           await connectDB();
 
@@ -62,14 +63,5 @@ export const authOptions: NextAuthOptions = {
   },
   pages:   { signIn: "/login" },
   session: { strategy: "jwt" },
-  secret:  process.env.NEXTAUTH_SECRET,
-};
-
-// v4 exports — used by the route handler
-export default NextAuth(authOptions);
-
-// Helper to get session in server components / API routes
-export async function auth() {
-  const { getServerSession } = await import("next-auth");
-  return getServerSession(authOptions);
-}
+  secret:  process.env.AUTH_SECRET,
+});
