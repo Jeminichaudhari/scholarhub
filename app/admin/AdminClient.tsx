@@ -14,6 +14,7 @@ import { useScholarshipStore } from "@/lib/use-scholarship-store";
 import { signOut } from "next-auth/react";
 import ThemeToggle from "@/components/theme-toggle";
 import AdminProfileDropdown from "@/components/admin-profile-dropdown";
+import AdminAIMonitor from "@/components/admin-ai-monitor";
 
 interface Scholarship {
   _id: string;
@@ -37,7 +38,7 @@ export default function AdminClient() {
   const router = useRouter();
   const [scholarships, setScholarships] = useState<Scholarship[]>([]);
   const [loading, setLoading]           = useState(true);
-  const [activeTab, setActiveTab] = useState<"scholarships" | "users" | "message">("scholarships");
+  const [activeTab, setActiveTab] = useState<"scholarships" | "users" | "message" | "monitor">("scholarships");
   const [showForm, setShowForm]         = useState(false);
   const [editingId, setEditingId]       = useState<string | null>(null);
   const [form, setForm]                 = useState(emptyForm);
@@ -259,12 +260,15 @@ export default function AdminClient() {
 
         {/* ── Tabs ── */}
         <div className="flex gap-1 rounded-xl p-1 mb-6 w-full" style={{ background: "#e2e8f0" }}>
-          {(["scholarships", "users", "message"] as const).map(tab => (
+          {(["scholarships", "users", "message", "monitor"] as const).map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)}
-              className={`flex-1 rounded-lg px-5 py-2 text-sm font-semibold transition-all ${
+              className={`flex-1 rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
                 activeTab === tab ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
               }`}>
-              {tab === "scholarships" ? t("manageScholarships") : tab === "users" ? "Registered Users" : "📢 Send Message"}
+              {tab === "scholarships" ? t("manageScholarships")
+                : tab === "users"    ? "Registered Users"
+                : tab === "message"  ? "📢 Send Message"
+                :                      "🤖 AI Monitor"}
             </button>
           ))}
         </div>
@@ -493,6 +497,11 @@ export default function AdminClient() {
         {/* ── Message Tab ── */}
         {activeTab === "message" && (
           <MessageTab />
+        )}
+
+        {/* ── AI Monitor Tab ── */}
+        {activeTab === "monitor" && (
+          <AdminAIMonitor />
         )}
 
       </div>
