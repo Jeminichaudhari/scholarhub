@@ -32,13 +32,15 @@ const PRIORITY_CONFIG = {
 };
 
 const FIELD_LABELS: Record<string, string> = {
-  deadline:      "Deadline Changed",
-  deadline_soon: "Deadline Expiring Soon",
-  amount:        "Amount Changed",
-  status:        "Status Changed",
-  eligibility:   "Eligibility Changed",
-  applyLink:     "Missing Apply Link",
-  source:        "Source Unreachable",
+  deadline_passed:  "⏰ Deadline Passed",
+  deadline_soon:    "⚡ Deadline Expiring Soon",
+  deadline:         "📅 Deadline Changed",
+  amount:           "💰 Amount Changed",
+  status:           "🔄 Status Changed",
+  eligibility:      "📋 Eligibility Changed",
+  applyLink:        "🔗 Missing Apply Link",
+  applyLink_mismatch: "🔗 Apply Link Outdated",
+  source:           "⚠️ Source Unreachable",
 };
 
 export default function AdminAIMonitor() {
