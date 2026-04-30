@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useScholarshipStore } from "@/lib/use-scholarship-store";
 import {
-  Bot, RefreshCw, AlertTriangle, CheckCircle2, Clock,
+  Bot, RefreshCw, AlertTriangle, CheckCircle2,
   ExternalLink, ChevronDown, ChevronUp, Trash2, Check,
-  WifiOff, Zap, History, X, Info
+  WifiOff, Zap, History, X, Info, Clock
 } from "lucide-react";
 
 interface Alert {
@@ -31,11 +32,13 @@ const PRIORITY_CONFIG = {
 };
 
 const FIELD_LABELS: Record<string, string> = {
-  deadline:    "Deadline",
-  amount:      "Amount",
-  status:      "Status",
-  eligibility: "Eligibility",
-  source:      "Source URL",
+  deadline:      "Deadline Changed",
+  deadline_soon: "Deadline Expiring Soon",
+  amount:        "Amount Changed",
+  status:        "Status Changed",
+  eligibility:   "Eligibility Changed",
+  applyLink:     "Missing Apply Link",
+  source:        "Source Unreachable",
 };
 
 export default function AdminAIMonitor() {
@@ -47,6 +50,9 @@ export default function AdminAIMonitor() {
   const [tab,       setTab]       = useState<"pending" | "history">("pending");
   const [history,   setHistory]   = useState<Alert[]>([]);
   const [histLoad,  setHistLoad]  = useState(false);
+
+  // Get scholarships from localStorage store
+  const { scholarships, isLoaded: storeLoaded } = useScholarshipStore();
 
   // ── Fetch pending alerts ──────────────────────────────────────────────────
   const fetchAlerts = useCallback(async () => {
@@ -82,11 +88,32 @@ export default function AdminAIMonitor() {
     if (tab === "history") fetchHistory();
   }, [tab]);
 
-  // ── Run AI scan ───────────────────────────────────────────────────────────
+  // ── Run AI scan — sends scholarships from localStorage to API ───────────
   async function runScan() {
+    if (!storeLoaded || scholarships.length === 0) {
+      setScanMsg({ text: "No scholarships found to scan.", ok: false });
+      return;
+    }
+
     setScanning(true); setScanMsg(null);
+
+    // Build payload from localStorage scholarships
+    const payload = scholarships.map(s => ({
+      id:          s.id,
+      title:       s.title,
+      amount:      s.amount,
+      deadline:    s.deadline,
+      isActive:    new Date(s.deadline) >= new Date(),
+      applyLink:   s.applyLink || "",
+      eligibility: s.eligibility || "",
+    }));
+
     try {
-      const res  = await fetch("/api/admin/monitor", { method: "POST" });
+      const res  = await fetch("/api/admin/monitor", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ scholarships: payload }),
+      });
       const data = await res.json();
       setScanMsg({ text: data.message, ok: res.ok });
       await fetchAlerts();
@@ -179,10 +206,20 @@ export default function AdminAIMonitor() {
 
         {/* Stat pills */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 px-5 py-4 bg-white border-b border-gray-100">
-          <StatPill icon={<Zap size={14} />}          label="Urgent Changes"  value={urgentCount}  color="#dc2626" bg="#fef2f2" />
-          <StatPill icon={<AlertTriangle size={14} />} label="High Priority"   value={highCount}    color="#ea580c" bg="#fff7ed" />
-          <StatPill icon={<Info size={14} />}          label="Total Changes"   value={changeCount}  color="#2563eb" bg="#eff6ff" />
-          <StatPill icon={<WifiOff size={14} />}       label="Unreachable"     value={warningCount} color="#6b7280" bg="#f9fafb" />
+          <StatPill icon={<Zap size={14} />}          label="Urgent Changes"    value={urgentCount}               color="#dc2626" bg="#fef2f2" />
+          <StatPill icon={<AlertTriangle size={14} />} label="High Priority"     value={highCount}                 color="#ea580c" bg="#fff7ed" />
+          <StatPill icon={<Info size={14} />}          label="Total Changes"     value={changeCount}               color="#2563eb" bg="#eff6ff" />
+          <StatPill icon={<WifiOff size={14} />}       label="Unreachable Sites" value={warningCount}              color="#6b7280" bg="#f9fafb" />
+        </div>
+
+        {/* Scholarships loaded info */}
+        <div className="px-5 py-2.5 bg-blue-50 border-b border-blue-100 flex items-center gap-2 text-xs text-blue-700">
+          <Info size={12} />
+          <span>
+            {storeLoaded
+              ? <><b>{scholarships.length}</b> scholarships loaded from your dashboard — ready to scan</>
+              : "Loading scholarships..."}
+          </span>
         </div>
       </div>
 
