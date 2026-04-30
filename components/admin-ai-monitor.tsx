@@ -425,11 +425,27 @@ function AlertCard({
               <p className="text-gray-700 font-medium">{alert.suggestedAction}</p>
             </div>
 
-            {/* Source link */}
-            <a href={alert.sourceUrl} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs text-blue-600 hover:underline">
-              <ExternalLink size={12} /> View Official Source
-            </a>
+            {/* Source URL box */}
+            {alert.sourceUrl && alert.sourceUrl !== "#" && (
+              <div className="rounded-lg bg-white border border-gray-100 p-3">
+                <p className="text-[10px] font-bold text-gray-400 uppercase mb-1">
+                  {alert.field === "amount" ? "📄 Official Page Showing Amount" : "🔗 Official Source URL"}
+                </p>
+                <p className="text-xs text-gray-500 break-all font-mono mb-2">{alert.sourceUrl}</p>
+                <a href={alert.sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg text-white hover:opacity-90 transition"
+                  style={{ background: "linear-gradient(135deg,#1e6fff,#2563eb)" }}>
+                  <ExternalLink size={12} />
+                  {alert.field === "amount"
+                    ? "Open Page — Verify Amount →"
+                    : alert.field === "deadline" || alert.field === "deadline_passed"
+                      ? "Open Page — Verify Deadline →"
+                      : alert.field === "status"
+                        ? "Open Page — Verify Status →"
+                        : "Open Official Source →"}
+                </a>
+              </div>
+            )}
 
             {/* Actions */}
             {!readonly && (
