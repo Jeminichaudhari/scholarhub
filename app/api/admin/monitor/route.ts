@@ -211,8 +211,8 @@ const VERIFIED_DATA: Record<string, {
   },
   "22": {
     officialName:    "MYSY Scholarship Gujarat",
-    officialUrl:     "https://mysy.guj.nic.in",
-    amountSourceUrl: "https://mysy.guj.nic.in",
+    officialUrl:     "http://mysy.guj.nic.in",
+    amountSourceUrl: "http://mysy.guj.nic.in",
     amount:          50000,
     deadline:        "2026-11-30",
     status:          "active",
@@ -310,8 +310,8 @@ const VERIFIED_DATA: Record<string, {
   },
   "33": {
     officialName:    "Eklavya Model Residential School (EMRS)",
-    officialUrl:     "https://emrs.tribal.gov.in",
-    amountSourceUrl: "https://emrs.tribal.gov.in",
+    officialUrl:     "https://tribal.gov.in/emrs",
+    amountSourceUrl: "https://tribal.gov.in/emrs",
     amount:          100000,
     deadline:        "2026-04-30",
     status:          "active",
