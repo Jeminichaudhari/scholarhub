@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json());
 
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.DATABASE_URI)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB error:", err));
 

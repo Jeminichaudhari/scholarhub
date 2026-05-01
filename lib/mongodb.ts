@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
+const DATABASE_URI = process.env.DATABASE_URI!;
 
-if (!MONGODB_URI && process.env.NODE_ENV === "production") {
-  throw new Error("MONGODB_URI environment variable is not defined");
+if (!DATABASE_URI && process.env.NODE_ENV === "production") {
+  throw new Error("DATABASE_URI environment variable is not defined");
 }
 
 interface MongooseCache {
@@ -23,9 +23,9 @@ async function connectDB() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    const isAtlas = MONGODB_URI.includes("mongodb+srv");
+    const isAtlas = DATABASE_URI.includes("mongodb+srv");
     cached.promise = mongoose
-      .connect(MONGODB_URI, {
+      .connect(DATABASE_URI, {
         bufferCommands: false,
         serverSelectionTimeoutMS: 10000,
         ...(isAtlas ? {} : { family: 4 }),

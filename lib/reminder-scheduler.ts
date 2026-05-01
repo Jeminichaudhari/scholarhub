@@ -24,11 +24,11 @@ async function runCheck() {
     const mongoose   = await import("mongoose");
     const nodemailer = await import("nodemailer");
 
-    const MONGODB_URI = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/scholarship_portal";
+    const DATABASE_URI = process.env.DATABASE_URI || "mongodb://127.0.0.1:27017/scholarship_portal";
 
     // Connect if not already connected
     if (mongoose.default.connection.readyState === 0) {
-      await mongoose.default.connect(MONGODB_URI);
+      await mongoose.default.connect(DATABASE_URI);
       console.log("⏰ Scheduler connected to MongoDB");
     }
 
